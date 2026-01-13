@@ -1,7 +1,16 @@
 import axios from 'axios';
 import type { School } from '../types/school';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_KEY = import.meta.env.VITE_API_KEY || '';
+
+// Create axios instance with default config
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'X-API-Key': API_KEY,
+  },
+});
 
 export interface ScoreByYear {
   year: number;
@@ -52,7 +61,7 @@ export interface ComunaPolygon {
 
 export const getRegions = async (): Promise<Region[]> => {
   try {
-    const response = await axios.get<Region[]>(`${API_BASE_URL}/regions`);
+    const response = await apiClient.get<Region[]>('/regions');
     return response.data;
   } catch (error) {
     console.error('Error fetching regions:', error);
@@ -62,7 +71,7 @@ export const getRegions = async (): Promise<Region[]> => {
 
 export const getSchools = async (region: string, comuna: string): Promise<School[]> => {
   try {
-    const response = await axios.get<School[]>(`${API_BASE_URL}/schools`, {
+    const response = await apiClient.get<School[]>('/schools', {
       params: {
         region,
         comuna
@@ -77,7 +86,7 @@ export const getSchools = async (region: string, comuna: string): Promise<School
 
 export const getSchoolDetail = async (rbd: number): Promise<SchoolDetail> => {
   try {
-    const response = await axios.get<SchoolDetail>(`${API_BASE_URL}/schools/${rbd}`);
+    const response = await apiClient.get<SchoolDetail>(`/schools/${rbd}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching school detail:', error);
@@ -87,7 +96,7 @@ export const getSchoolDetail = async (rbd: number): Promise<SchoolDetail> => {
 
 export const getComunaPolygon = async (codComuna: number): Promise<ComunaPolygon> => {
   try {
-    const response = await axios.get<ComunaPolygon>(`${API_BASE_URL}/polygons/comunas/${codComuna}/polygon`);
+    const response = await apiClient.get<ComunaPolygon>(`/polygons/comunas/${codComuna}/polygon`);
     return response.data;
   } catch (error) {
     console.error('Error fetching comuna polygon:', error);
