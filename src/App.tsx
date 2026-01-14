@@ -265,7 +265,7 @@ function App() {
         <div className="home-screen">
           <div className="home-content">
             <h1 className="home-title">¿Cómo son los colegios de tu barrio?</h1>
-            <p className="home-subtitle">(PAES - PSU)</p>
+            <p className="home-subtitle">(PAES 2023-2026)</p>
             <div className="home-controls">
               <select
                 value={selectedRegion}
@@ -470,7 +470,7 @@ function App() {
             )}
 
             {schools.map((school, index) => {
-              const score = school.puntaje_promedio_2017_2026;
+              const score = school.puntaje_promedio_2023_2026;
               const color = getColorByScore(score);
               const isPublic = school.tipo_educacion?.toLowerCase().includes('blica') || false;
               const borderColor = isPublic ? '#000' : '#fff';

@@ -60,9 +60,9 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
               <span className="info-value">{school.region}</span>
             </div>
             <div className="info-item">
-              <span className="info-label">Puntaje Promedio PAES & PSU (2017-2026):</span>
+              <span className="info-label">Puntaje Promedio PAES (2023-2026):</span>
               <span className="info-value highlight">
-                {school.puntaje_promedio_2017_2026?.toFixed(1) || 'N/A'}
+                {school.puntaje_promedio_2023_2026?.toFixed(1) || 'N/A'}
               </span>
             </div>
             {school.pago_mensual && school.pago_mensual > 0 && (
@@ -83,7 +83,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
         {/* Score Evolution Chart with Comparisons */}
         {combinedScoreData.length > 0 && (
           <div className="chart-section">
-            <h3>Evolucion de Puntajes (PSU & PAES)</h3>
+            <h3>Evolución de Puntajes PAES</h3>
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={combinedScoreData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
@@ -146,7 +146,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
               lineHeight: '1.5',
               fontStyle: 'italic'
             }}>
-              El Puntaje representa el promedio de los puntajes en Matemática y Comprensión Lectora para los alumnos del establecimiento. Para los años con PSU, los resultados se escalaron a la escala actual de la PAES.
+              El Puntaje representa el promedio de los puntajes en Matemática y Comprensión Lectora para los alumnos del establecimiento.
             </p>
           </div>
         )}
@@ -154,7 +154,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
         {/* Student Count Chart */}
         {studentsData.length > 0 && (
           <div className="chart-section">
-            <h3>Evolución del número de estudiantes que rindieron la PSU/PAES</h3>
+            <h3>Evolución del número de estudiantes que rindieron la PAES</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={studentsData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
@@ -189,7 +189,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
               lineHeight: '1.5',
               fontStyle: 'italic'
             }}>
-              Cantidad de alumnos que rindieron la Prueba de Selección Universitaria por cada año.
+              Cantidad de alumnos que rindieron la PAES por cada año.
             </p>
           </div>
         )}

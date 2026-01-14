@@ -32,7 +32,7 @@ export interface SchoolDetail {
   nombre: string;
   tipo_educacion: string | null;
   grupo_dependencia: string;
-  puntaje_promedio_2017_2026: number | null;
+  puntaje_promedio_2023_2026: number | null;
   pago_mensual: number | null;
   pago_matricula: number | null;
   latitud: number | null;
