@@ -264,7 +264,8 @@ function App() {
         // Home Screen
         <div className="home-screen">
           <div className="home-content">
-            <h1 className="home-title">¿Cómo son los colegios de mi barrio?</h1>
+            <h1 className="home-title">¿Cómo son los colegios de tu barrio?</h1>
+            <p className="home-subtitle">(PAES - PSU)</p>
             <div className="home-controls">
               <select
                 value={selectedRegion}
