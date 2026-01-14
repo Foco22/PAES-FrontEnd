@@ -37,6 +37,19 @@ const getColorByScore = (score: number | null): string => {
   }
 };
 
+// Component to control map view changes
+function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.flyTo(center, zoom, {
+      duration: 1.2
+    });
+  }, [map, center, zoom]);
+
+  return null;
+}
+
 // Custom Zoom Controls Component
 function ZoomControls() {
   const map = useMap();
@@ -60,6 +73,7 @@ function ZoomControls() {
     </div>
   );
 }
+
 
 function App() {
   const [regiones, setRegiones] = useState<Region[]>([]);
@@ -146,22 +160,33 @@ function App() {
 
   const handleComunaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedComuna(e.target.value);
+    setSchools([]); // Clear schools when comuna changes
     setComunaPolygon(null); // Clear polygon when comuna changes
+    setSelectedSchoolDetail(null); // Close any open detail panel
   };
 
   const handleSchoolClick = async (rbd: number) => {
-    if (loadingDetail) return;
+    console.log('🔍 School clicked, RBD:', rbd);
+    console.log('📊 Current loadingDetail state:', loadingDetail);
+
+    if (loadingDetail) {
+      console.log('⚠️ Already loading, skipping...');
+      return;
+    }
 
     setLoadingDetail(true);
     try {
+      console.log('🌐 Fetching school detail...');
       const detail = await getSchoolDetail(rbd);
+      console.log('✅ School detail received:', detail);
       setSelectedSchoolDetail(detail);
     } catch (err) {
-      console.error('Error loading school detail:', err);
+      console.error('❌ Error loading school detail:', err);
       setError('Error al cargar los detalles de la escuela');
       setTimeout(() => setError(null), 3000);
     } finally {
       setLoadingDetail(false);
+      console.log('✨ Finished loading detail');
     }
   };
 
@@ -178,15 +203,24 @@ function App() {
     setLoading(true);
     setError(null);
 
+    // Clear schools first to trigger map recreation
+    setSchools([]);
+
     try {
       const data = await getSchools(selectedRegion, selectedComuna);
-      setSchools(data);
+
+      console.log(`📍 Loaded ${data.length} schools for ${selectedComuna}`);
 
       // Center map on first school if available
       if (data.length > 0 && data[0].latitud && data[0].longitud) {
-        setMapCenter([data[0].latitud, data[0].longitud]);
+        const newCenter: [number, number] = [data[0].latitud, data[0].longitud];
+        console.log(`🗺️ Setting map center to:`, newCenter);
+        setMapCenter(newCenter);
         setMapZoom(14);
       }
+
+      // Set schools AFTER updating center
+      setSchools(data);
 
       // Fetch comuna polygon if we have schools with cod_com_rbd
       if (data.length > 0 && data[0].cod_com_rbd) {
@@ -404,10 +438,10 @@ function App() {
           )}
 
           <MapContainer
+            key={`${selectedRegion}-${selectedComuna}`}
             center={mapCenter}
             zoom={mapZoom}
             style={{ height: '100vh', width: '100vw' }}
-            key={`${mapCenter[0]}-${mapCenter[1]}`}
             zoomControl={false}
           >
             <TileLayer
@@ -416,12 +450,14 @@ function App() {
             />
 
             <ZoomControls />
+            <MapController center={mapCenter} zoom={mapZoom} />
 
-            {/* Comuna polygon boundary */}
+            {/* Comuna polygon boundary - non-interactive so it doesn't block marker clicks */}
             {comunaPolygon && (
               <GeoJSON
                 key={comunaPolygon.properties.cod_comuna}
                 data={comunaPolygon}
+                interactive={false}
                 style={{
                   color: '#000000',
                   weight: 1,
@@ -438,6 +474,8 @@ function App() {
               const isPublic = school.tipo_educacion?.toLowerCase().includes('blica') || false;
               const borderColor = isPublic ? '#000' : '#fff';
 
+              console.log(`Rendering school ${index}:`, school.nombre, 'RBD:', school.rbd);
+
               return school.latitud && school.longitud ? (
                 <CircleMarker
                   key={`${school.rbd}-${index}`}
@@ -451,6 +489,7 @@ function App() {
                   }}
                   eventHandlers={{
                     click: () => {
+                      console.log('CircleMarker click event fired for:', school.nombre, 'RBD:', school.rbd);
                       if (school.rbd) {
                         handleSchoolClick(school.rbd);
                       }
