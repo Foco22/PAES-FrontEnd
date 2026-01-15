@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, GeoJSON } from 'react-leaflet';
+import { Analytics } from '@vercel/analytics/react';
 import 'leaflet/dist/leaflet.css';
 import type { School } from './types/school';
 import { getSchools, getSchoolDetail, getRegions, getComunaPolygon, type SchoolDetail, type Region, type ComunaPolygon } from './services/api';
@@ -524,6 +525,7 @@ function App() {
       )}
 
       {error && <div className="error-toast">{error}</div>}
+      <Analytics />
     </div>
   );
 }
