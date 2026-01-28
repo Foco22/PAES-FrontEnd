@@ -5,6 +5,8 @@ import 'leaflet/dist/leaflet.css';
 import type { School } from './types/school';
 import { getSchools, getSchoolDetail, getRegions, getComunaPolygon, type SchoolDetail, type Region, type ComunaPolygon } from './services/api';
 import { SchoolDetailPanel } from './components/SchoolDetailPanel';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
+import { useLanguage } from './i18n/LanguageContext';
 import './App.css';
 import './components/SchoolDetailPanel.css';
 
@@ -53,6 +55,7 @@ function MapController({ center, zoom }: { center: [number, number]; zoom: numbe
 
 // Custom Zoom Controls Component
 function ZoomControls() {
+  const { t } = useLanguage();
   const map = useMap();
 
   const handleZoomIn = () => {
@@ -65,10 +68,10 @@ function ZoomControls() {
 
   return (
     <div className="zoom-controls">
-      <button onClick={handleZoomIn} className="zoom-button" title="Acercar">
+      <button onClick={handleZoomIn} className="zoom-button" title={t('zoomIn')}>
         +
       </button>
-      <button onClick={handleZoomOut} className="zoom-button" title="Alejar">
+      <button onClick={handleZoomOut} className="zoom-button" title={t('zoomOut')}>
         −
       </button>
     </div>
@@ -77,6 +80,7 @@ function ZoomControls() {
 
 
 function App() {
+  const { t } = useLanguage();
   const [regiones, setRegiones] = useState<Region[]>([]);
   const [selectedRegion, setSelectedRegion] = useState<string>('');
   const [selectedComuna, setSelectedComuna] = useState<string>('');
@@ -99,13 +103,13 @@ function App() {
         setRegiones(data);
       } catch (err) {
         console.error('Error loading regions:', err);
-        setError('Error al cargar las regiones');
+        setError(t('errorLoadingRegions'));
       } finally {
         setLoadingRegions(false);
       }
     };
     loadRegions();
-  }, []);
+  }, [t]);
 
   // Read URL parameters and auto-search when regions are loaded
   useEffect(() => {
@@ -183,7 +187,7 @@ function App() {
       setSelectedSchoolDetail(detail);
     } catch (err) {
       console.error('❌ Error loading school detail:', err);
-      setError('Error al cargar los detalles de la escuela');
+      setError(t('errorLoadingSchoolDetail'));
       setTimeout(() => setError(null), 3000);
     } finally {
       setLoadingDetail(false);
@@ -197,7 +201,7 @@ function App() {
 
   const handleSearch = async () => {
     if (!selectedRegion || !selectedComuna) {
-      setError('Por favor selecciona región y comuna');
+      setError(t('errorSelectRegionComuna'));
       return;
     }
 
@@ -243,7 +247,7 @@ function App() {
       // Show map after successful search
       setShowMap(true);
     } catch (err) {
-      setError('Error al cargar las escuelas. Verifica que el backend esté funcionando.');
+      setError(t('errorLoadingSchools'));
       console.error(err);
     } finally {
       setLoading(false);
@@ -254,6 +258,7 @@ function App() {
 
   return (
     <div className="app-container">
+      <LanguageSwitcher />
       {selectedSchoolDetail && (
         <SchoolDetailPanel
           school={selectedSchoolDetail}
@@ -265,8 +270,8 @@ function App() {
         // Home Screen
         <div className="home-screen">
           <div className="home-content">
-            <h1 className="home-title">¿Cómo son los colegios de tu barrio?</h1>
-            <p className="home-subtitle">(PAES 2023-2026)</p>
+            <h1 className="home-title">{t('homeTitle')}</h1>
+            <p className="home-subtitle">{t('homeSubtitle')}</p>
             <div className="home-controls">
               <select
                 value={selectedRegion}
@@ -274,7 +279,7 @@ function App() {
                 disabled={loading || loadingRegions}
                 className="select-minimal"
               >
-                <option value="">{loadingRegions ? 'Cargando...' : 'Seleccionar región'}</option>
+                <option value="">{loadingRegions ? t('loading') : t('selectRegion')}</option>
                 {regiones.map(region => (
                   <option key={region.nombre} value={region.nombre}>
                     {region.nombre}
@@ -288,7 +293,7 @@ function App() {
                 disabled={!selectedRegion || loading}
                 className="select-minimal"
               >
-                <option value="">Seleccionar comuna</option>
+                <option value="">{t('selectComuna')}</option>
                 {selectedRegionData?.comunas.map(comuna => (
                   <option key={comuna} value={comuna}>
                     {comuna}
@@ -301,11 +306,11 @@ function App() {
                 disabled={!selectedRegion || !selectedComuna || loading}
                 className="button-minimal"
               >
-                {loading ? '...' : 'Buscar'}
+                {loading ? '...' : t('search')}
               </button>
             </div>
             <p className="home-source">
-              Los datos utilizados fueron obtenidos a partir de información oficial publicada por el DEMRE, disponible en el siguiente <a href="https://portal-transparencia.demre.cl/portal-base-datos" target="_blank" rel="noopener noreferrer">enlace</a>.
+              {t('homeSource')} <a href="https://portal-transparencia.demre.cl/portal-base-datos" target="_blank" rel="noopener noreferrer">{t('homeSourceLink')}</a>.
             </p>
           </div>
         </div>
@@ -320,7 +325,7 @@ function App() {
                 disabled={loading || loadingRegions}
                 className="select-minimal"
               >
-                <option value="">{loadingRegions ? 'Cargando...' : 'Seleccionar región'}</option>
+                <option value="">{loadingRegions ? t('loading') : t('selectRegion')}</option>
                 {regiones.map(region => (
                   <option key={region.nombre} value={region.nombre}>
                     {region.nombre}
@@ -334,7 +339,7 @@ function App() {
                 disabled={!selectedRegion || loading}
                 className="select-minimal"
               >
-                <option value="">Seleccionar comuna</option>
+                <option value="">{t('selectComuna')}</option>
                 {selectedRegionData?.comunas.map(comuna => (
                   <option key={comuna} value={comuna}>
                     {comuna}
@@ -347,7 +352,7 @@ function App() {
                 disabled={!selectedRegion || !selectedComuna || loading}
                 className="button-minimal"
               >
-                {loading ? '...' : 'Buscar'}
+                {loading ? '...' : t('search')}
               </button>
             </div>
           </div>
@@ -375,7 +380,7 @@ function App() {
               marginBottom: '10px',
               margin: 0
             }}>
-              <strong>Nota importante:</strong> Estos datos consideran únicamente los resultados de las pruebas de Matemática y Comprensión Lectora de los últimos años. El objetivo de este instrumento no es clasificar a los colegios como "buenos" o "deficientes", sino presentar los resultados de las pruebas de selección universitaria desde una perspectiva distinta.
+              <strong>{t('importantNote')}</strong> {t('importantNoteText')}
             </p>
             <p style={{
               fontSize: '0.7rem',
@@ -383,7 +388,7 @@ function App() {
               lineHeight: '1.5',
               margin: '10px 0 0 0'
             }}>
-              La elección de un establecimiento educacional para un hijo es una decisión multifactorial, que depende de aspectos como disponibilidad de cupos, situación económica, actividades extracurriculares, ambiente escolar, entre otros. Estas pruebas no miden muchos factores que pueden ser incluso más relevantes que un examen y que, en muchos casos, influyen de manera más determinante en el futuro de las personas.
+              {t('importantNoteText2')}
             </p>
           </div>
 
@@ -397,16 +402,16 @@ function App() {
                 minWidth: 'auto'
               }}>
                 <div style={{ fontSize: '0.7rem', fontWeight: 600, marginBottom: '8px', color: '#333' }}>
-                  Tipo
+                  {t('type')}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#666', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#999', border: '2.5px solid #000' }}></div>
-                    <span>Pública</span>
+                    <span>{t('public')}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#999', border: '2.5px solid #fff', boxShadow: '0 0 0 1px #ddd' }}></div>
-                    <span>Privada</span>
+                    <span>{t('private')}</span>
                   </div>
                 </div>
               </div>
@@ -419,7 +424,7 @@ function App() {
                 minWidth: 'auto'
               }}>
                 <div style={{ fontSize: '0.7rem', fontWeight: 600, marginBottom: '8px', color: '#333' }}>
-                  Pje
+                  {t('score')}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '180px', fontSize: '0.7rem', color: '#666' }}>
@@ -500,9 +505,9 @@ function App() {
                 >
                   <Popup>
                     <div className="popup-content">
-                      <div className="popup-title">{school.nombre || 'Sin nombre'}</div>
+                      <div className="popup-title">{school.nombre || t('noName')}</div>
                       <div className="popup-score">
-                        <span className="popup-score-value">{score?.toFixed(1) || 'N/A'}</span> pts
+                        <span className="popup-score-value">{score?.toFixed(1) || 'N/A'}</span> {t('score')}
                       </div>
                       {school.tipo_educacion && (
                         <div style={{

@@ -325,3 +325,49 @@
 .home-source a:hover {
   color: #000;
 }
+
+/* Language Switcher */
+.language-switcher {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 25px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.language-tab {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+  position: relative;
+}
+
+.language-tab:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.language-tab.active {
+  background-color: #2c2c2c;
+  color: white;
+}
+
+.language-tab.active:hover {
+  background-color: #000;
+}
+
+/* Ensure switcher appears on top of both home and map views */
+.app-container .language-switcher {
+  z-index: 1001;
+}
