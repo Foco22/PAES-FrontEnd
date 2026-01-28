@@ -109,7 +109,7 @@ function App() {
       }
     };
     loadRegions();
-  }, []);
+  }, [t]);
 
   // Read URL parameters and auto-search when regions are loaded
   useEffect(() => {

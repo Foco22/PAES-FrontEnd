@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import { translations, type Language, type TranslationKey } from './translations';
+import { translations } from './translations';
+import type { Language, TranslationKey } from './types';
 
 interface LanguageContextType {
   language: Language;
@@ -23,6 +24,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/* eslint-disable react-refresh/only-export-components */
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (!context) {
