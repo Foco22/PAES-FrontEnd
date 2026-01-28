@@ -1,5 +1,6 @@
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { SchoolDetail } from '../services/api';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface SchoolDetailPanelProps {
   school: SchoolDetail | null;
@@ -7,6 +8,7 @@ interface SchoolDetailPanelProps {
 }
 
 export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
+  const { t } = useLanguage();
   if (!school) return null;
 
   // Combine all score data for comparison chart
@@ -39,41 +41,41 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
       <div className="panel-content">
         {/* General Information */}
         <div className="info-section">
-          <h3>Información General</h3>
+          <h3>{t('generalInfo')}</h3>
           <div className="info-grid">
             {school.tipo_educacion && (
               <div className="info-item">
-                <span className="info-label">Tipo:</span>
+                <span className="info-label">{t('typeLabel')}</span>
                 <span className="info-value">{school.tipo_educacion}</span>
               </div>
             )}
             <div className="info-item">
-              <span className="info-label">Dependencia:</span>
-              <span className="info-value">{school.grupo_dependencia || 'N/A'}</span>
+              <span className="info-label">{t('dependency')}</span>
+              <span className="info-value">{school.grupo_dependencia || t('na')}</span>
             </div>
             <div className="info-item">
-              <span className="info-label">Comuna:</span>
+              <span className="info-label">{t('comuna')}</span>
               <span className="info-value">{school.comuna}</span>
             </div>
             <div className="info-item">
-              <span className="info-label">Región:</span>
+              <span className="info-label">{t('region')}</span>
               <span className="info-value">{school.region}</span>
             </div>
             <div className="info-item">
-              <span className="info-label">Puntaje Promedio PAES (2023-2026):</span>
+              <span className="info-label">{t('avgScore')}</span>
               <span className="info-value highlight">
-                {school.puntaje_promedio_2023_2026?.toFixed(1) || 'N/A'}
+                {school.puntaje_promedio_2023_2026?.toFixed(1) || t('na')}
               </span>
             </div>
             {school.pago_mensual && school.pago_mensual > 0 && (
               <div className="info-item">
-                <span className="info-label">Pago Mensual:</span>
+                <span className="info-label">{t('monthlyPayment')}</span>
                 <span className="info-value">${school.pago_mensual.toLocaleString()}</span>
               </div>
             )}
             {school.pago_matricula && school.pago_matricula > 0 && (
               <div className="info-item">
-                <span className="info-label">Matrícula:</span>
+                <span className="info-label">{t('enrollment')}</span>
                 <span className="info-value">${school.pago_matricula.toLocaleString()}</span>
               </div>
             )}
@@ -83,7 +85,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
         {/* Score Evolution Chart with Comparisons */}
         {combinedScoreData.length > 0 && (
           <div className="chart-section">
-            <h3>Evolución de Puntajes PAES</h3>
+            <h3>{t('scoreEvolution')}</h3>
             <ResponsiveContainer width="100%" height={240}>
               <LineChart data={combinedScoreData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
@@ -109,7 +111,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
                 <Line
                   type="monotone"
                   dataKey="colegio"
-                  name="Colegio"
+                  name={t('school')}
                   stroke="#2c2c2c"
                   strokeWidth={3}
                   dot={{ fill: '#2c2c2c', r: 5 }}
@@ -119,7 +121,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
                 <Line
                   type="monotone"
                   dataKey="Prom. Público"
-                  name="Prom. Público"
+                  name={t('publicAvg')}
                   stroke="#C62828"
                   strokeWidth={2}
                   strokeDasharray="5 5"
@@ -130,7 +132,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
                 <Line
                   type="monotone"
                   dataKey="Prom. Privado"
-                  name="Prom. Privado"
+                  name={t('privateAvg')}
                   stroke="#0D47A1"
                   strokeWidth={2}
                   strokeDasharray="5 5"
@@ -146,7 +148,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
               lineHeight: '1.5',
               fontStyle: 'italic'
             }}>
-              El Puntaje representa el promedio de los puntajes en Matemática y Comprensión Lectora para los alumnos del establecimiento.
+              {t('scoreExplanation')}
             </p>
           </div>
         )}
@@ -154,7 +156,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
         {/* Student Count Chart */}
         {studentsData.length > 0 && (
           <div className="chart-section">
-            <h3>Evolución del número de estudiantes que rindieron la PAES</h3>
+            <h3>{t('studentEvolution')}</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={studentsData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
@@ -177,6 +179,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
                 />
                 <Bar
                   dataKey="estudiantes"
+                  name={t('students')}
                   fill="#555"
                   radius={[4, 4, 0, 0]}
                 />
@@ -189,7 +192,7 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
               lineHeight: '1.5',
               fontStyle: 'italic'
             }}>
-              Cantidad de alumnos que rindieron la PAES por cada año.
+              {t('studentExplanation')}
             </p>
           </div>
         )}
