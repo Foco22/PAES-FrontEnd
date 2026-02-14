@@ -266,8 +266,92 @@ function App() {
         />
       )}
 
+      {/* Map always renders in background */}
+      <MapContainer
+        key={showMap ? `${selectedRegion}-${selectedComuna}` : 'home'}
+        center={mapCenter}
+        zoom={mapZoom}
+        style={{ height: '100vh', width: '100vw' }}
+        zoomControl={false}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        />
+
+        {showMap && (
+          <>
+            <ZoomControls />
+            <MapController center={mapCenter} zoom={mapZoom} />
+
+            {comunaPolygon && (
+              <GeoJSON
+                key={comunaPolygon.properties.cod_comuna}
+                data={comunaPolygon}
+                interactive={false}
+                style={{
+                  color: '#000000',
+                  weight: 1,
+                  opacity: 0.4,
+                  fillOpacity: 0.02,
+                  fillColor: '#000000'
+                }}
+              />
+            )}
+
+            {schools.map((school, index) => {
+              const score = school.puntaje_promedio_2023_2026;
+              const color = getColorByScore(score);
+              const isPublic = school.tipo_educacion?.toLowerCase().includes('blica') || false;
+              const borderColor = isPublic ? '#000' : '#fff';
+
+              return school.latitud && school.longitud ? (
+                <CircleMarker
+                  key={`${school.rbd}-${index}`}
+                  center={[school.latitud, school.longitud]}
+                  radius={10}
+                  pathOptions={{
+                    fillColor: color,
+                    fillOpacity: 0.85,
+                    color: borderColor,
+                    weight: 2.5,
+                  }}
+                  eventHandlers={{
+                    click: () => {
+                      if (school.rbd) {
+                        handleSchoolClick(school.rbd);
+                      }
+                    }
+                  }}
+                >
+                  <Popup>
+                    <div className="popup-content">
+                      <div className="popup-title">{school.nombre || t('noName')}</div>
+                      <div className="popup-score">
+                        <span className="popup-score-value">{score?.toFixed(1) || 'N/A'}</span> {t('score')}
+                      </div>
+                      {school.tipo_educacion && (
+                        <div style={{
+                          fontSize: '0.65rem',
+                          color: 'rgba(0, 0, 0, 0.45)',
+                          marginTop: '3px',
+                          letterSpacing: '0.2px',
+                          fontWeight: 400
+                        }}>
+                          {school.tipo_educacion}
+                        </div>
+                      )}
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              ) : null;
+            })}
+          </>
+        )}
+      </MapContainer>
+
       {!showMap ? (
-        // Home Screen
+        // Home Screen - overlaid on map
         <div className="home-screen">
           <div className="home-content">
             <h1 className="home-title">{t('homeTitle')}</h1>
@@ -315,7 +399,7 @@ function App() {
           </div>
         </div>
       ) : (
-        // Map View
+        // Map View overlay controls
         <>
           <div className="top-bar">
             <div className="controls">
@@ -443,89 +527,6 @@ function App() {
               </div>
             </div>
           )}
-
-          <MapContainer
-            key={`${selectedRegion}-${selectedComuna}`}
-            center={mapCenter}
-            zoom={mapZoom}
-            style={{ height: '100vh', width: '100vw' }}
-            zoomControl={false}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            />
-
-            <ZoomControls />
-            <MapController center={mapCenter} zoom={mapZoom} />
-
-            {/* Comuna polygon boundary - non-interactive so it doesn't block marker clicks */}
-            {comunaPolygon && (
-              <GeoJSON
-                key={comunaPolygon.properties.cod_comuna}
-                data={comunaPolygon}
-                interactive={false}
-                style={{
-                  color: '#000000',
-                  weight: 1,
-                  opacity: 0.4,
-                  fillOpacity: 0.02,
-                  fillColor: '#000000'
-                }}
-              />
-            )}
-
-            {schools.map((school, index) => {
-              const score = school.puntaje_promedio_2023_2026;
-              const color = getColorByScore(score);
-              const isPublic = school.tipo_educacion?.toLowerCase().includes('blica') || false;
-              const borderColor = isPublic ? '#000' : '#fff';
-
-              console.log(`Rendering school ${index}:`, school.nombre, 'RBD:', school.rbd);
-
-              return school.latitud && school.longitud ? (
-                <CircleMarker
-                  key={`${school.rbd}-${index}`}
-                  center={[school.latitud, school.longitud]}
-                  radius={10}
-                  pathOptions={{
-                    fillColor: color,
-                    fillOpacity: 0.85,
-                    color: borderColor,
-                    weight: 2.5,
-                  }}
-                  eventHandlers={{
-                    click: () => {
-                      console.log('CircleMarker click event fired for:', school.nombre, 'RBD:', school.rbd);
-                      if (school.rbd) {
-                        handleSchoolClick(school.rbd);
-                      }
-                    }
-                  }}
-                >
-                  <Popup>
-                    <div className="popup-content">
-                      <div className="popup-title">{school.nombre || t('noName')}</div>
-                      <div className="popup-score">
-                        <span className="popup-score-value">{score?.toFixed(1) || 'N/A'}</span> {t('score')}
-                      </div>
-                      {school.tipo_educacion && (
-                        <div style={{
-                          fontSize: '0.65rem',
-                          color: 'rgba(0, 0, 0, 0.45)',
-                          marginTop: '3px',
-                          letterSpacing: '0.2px',
-                          fontWeight: 400
-                        }}>
-                          {school.tipo_educacion}
-                        </div>
-                      )}
-                    </div>
-                  </Popup>
-                </CircleMarker>
-              ) : null;
-            })}
-          </MapContainer>
         </>
       )}
 
